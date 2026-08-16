@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PCDS | Cyber Defence Console</title>
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --panel-bg: rgba(24, 24, 27, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --accent-primary: #3b82f6;
+            --accent-danger: #ef4444;
+            --accent-success: #10b981;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 60px 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- HEADER --- */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand i {
+            color: var(--accent-primary);
+            font-size: 1.2rem;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+            padding: 6px 12px;
+            border-radius: 99px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            grid-row: 2;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        /* WIDGET: BLOCKED HOSTS */
+        .blocked-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .blocked-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .blocked-card:hover {
+            border-color: var(--accent-danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .blocked-ip {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .blocked-reason {
+            font-size: 0.75rem;
+            color: var(--accent-danger);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .unban-icon-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 4px;
+        }
+
+        .unban-icon-btn:hover {
+            color: #fff;
+        }
+
+        /* WIDGET: ALERTS */
+        .alert-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert-card {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 3px solid var(--accent-danger);
+            padding: 12px;
+            border-radius: 0 4px 4px 0;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .alert-msg {
+            font-size: 0.85rem;
+            color: #fca5a5;
+            line-height: 1.4;
+        }
+
+        .alert-src {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            margin-top: 6px;
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        /* --- MAIN CONTENT (LOGS) --- */
+        main {
+            grid-column: 2;
+            padding: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logs-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logs-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .logs-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 24px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(5px);
+        }
+
+        td {
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            transition: background 0.1s;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: #fff;
+        }
+
+        /* Log Status Badges */
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: var(--font-main);
+        }
+
+        .badge-allow {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-block {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Blocked Row Animation */
+        tr.row-blocked td {
+            background: rgba(239, 68, 68, 0.05);
+            color: #fca5a5;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+        }
+
+        /* Unban Button in Table */
+        .table-unban-btn {
+            background: transparent;
+            border: 1px solid var(--accent-danger);
+            color: var(--accent-danger);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+
+        .table-unban-btn:hover {
+            background: var(--accent-danger);
+            color: white;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved"></i>
+                PCDS ENTERPRISE
+            </div>
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                SYSTEM ONLINE
+            </div>
+        </header>
+        <aside>
+            <div class="section-title">
+                <i class="fa-solid fa-ban" style="margin-right:6px"></i> Blocked Hosts
+            </div>
+            <div id="blocked-container" class="blocked-list">
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 20px;">
+                    Loading...
+                </div>
+            </div>
+
+            <!-- ALERT FEED -->
+            <div style="flex: 1; display:flex; flex-direction:column; min-height: 0;">
+                <div class="section-title" style="color: var(--accent-danger);">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i> Critical Threats
+                </div>
+                <div id="alert-feed" class="alert-feed custom-scrollbar">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 20px;">
+                        No active threats.
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main>
+            <div class="logs-panel">
+                <div class="logs-header">
+                    <div class="logs-title">
+                        <i class="fa-solid fa-terminal" style="color: var(--accent-primary)"></i>
+                        Live Ingestion Stream (Logstash)
+                    </div>
+                    <button class="clear-btn" onclick="clearLogs()">
+                        <i class="fa-solid fa-eraser"></i> Clear
+                    </button>
+                </div>
+                <div class="table-container custom-scrollbar">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="120">Timestamp</th>
+                                <th width="150">Source IP</th>
+                                <th width="100">Status</th>
+                                <th>Event Details</th>
+                                <th width="80">Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-body">
+                            <!-- Logs go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = '';
+        const socket = io();
+        let pollInterval;
+
+        // Init
+        window.onload = () => {
+            // AUTH CHECK
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return;
+            }
+
+            fetchBlockedIPs();
+            // Poll for blocked IPs every 2 seconds
+            pollInterval = setInterval(fetchBlockedIPs, 2000);
+        };
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            window.location.href = '/admin/login.html';
+        }
+
+        socket.on('log', (data) => addLog(data));
+        socket.on('alert', (data) => addAlert(data));
+        socket.on('refresh_blocks', () => fetchBlockedIPs());
+
+        // --- BLOCKED IP LOGIC ---
+        async function fetchBlockedIPs() {
+            try {
+                const res = await fetch('/admin/blocked-ips');
+
+                // SAFETY: Stop polling if Admin is blocked to prevent log spam
+                if (res.status === 403) {
+                    clearInterval(pollInterval);
+                    document.getElementById('blocked-container').innerHTML = `
+                    <div style="text-align: center; color: var(--accent-danger); padding: 20px;">
+                        <i class="fa-solid fa-ban" style="font-size: 24px; margin-bottom:10px;"></i><br>
+                        <strong>Admin IP Blocked</strong><br>
+                        <span style="font-size:0.8rem; opacity:0.8">Polling stopped. Restart server to regain access.</span>
+                    </div>
+                `;
+                    return;
+                }
+
+                if (!res.ok) throw new Error("Failed to fetch");
+                const data = await res.json();
+                renderBlockedList(data);
+            } catch (e) {
+                // Only show error if container is empty
+                const container = document.getElementById('blocked-container');
+                if (container.innerText.includes("Loading")) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 20px;">Connection Error</div>';
+                }
+            }
+        }
+
+        function renderBlockedList(list) {
+            const container = document.getElementById('blocked-container');
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 10px;">No IPs blocked.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+            <div class="blocked-card">
+                <div class="blocked-ip">${item.ip}</div>
+                <div class="blocked-reason"><i class="fa-solid fa-circle-exclamation"></i> ${item.reason}</div>
+                <button class="unban-icon-btn" onclick="unban('${item.ip}')" title="Unban IP">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `).join('');
+        }
+
+        async function unban(ip) {
+            // No confirm for quicker action, or keep it if you prefer safety
+            await fetch('/admin/unban', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip })
+            });
+        }
+
+        // --- LOGGING ---
+        let lastLogHash = "";
+        let lastLogTime = 0;
+
+        function addLog(log) {
+            // DE-DUPLICATION: Ignore identical logs within 2 seconds
+            // This prevents the UI from flooding if the system is spamming
+            const currentHash = log.ip + log.type + log.details;
+            const now = Date.now();
+            if (currentHash === lastLogHash && (now - lastLogTime < 2000)) {
+                return;
+            }
+            lastLogHash = currentHash;
+            lastLogTime = now;
+
+            const tbody = document.getElementById('log-body');
+            const tr = document.createElement('tr');
+            if (log.status === 'BLOCKED') tr.className = 'row-blocked';
+
+            const badgeClass = log.status === 'BLOCKED' ? 'badge-block' : 'badge-allow';
+
+            // Add Unban button if status is BLOCKED
+            const actionHtml = log.status === 'BLOCKED'
+                ? `<button class="table-unban-btn" onclick="unban('${log.ip}')">Unban</button>`
+                : '<span style="opacity:0.2">-</span>';
+
+            tr.innerHTML = `
+            <td style="color:var(--text-muted)">${log.time}</td>
+            <td style="font-family:var(--font-mono); color: #fff;">${log.ip}</td>
+            <td><span class="badge ${badgeClass}">${log.status}</span></td>
+            <td>${log.details}</td>
+            <td>${actionHtml}</td>
+        `;
+            tbody.prepend(tr);
+            if (tbody.children.length > 100) tbody.lastElementChild.remove();
+        }
+
+        function addAlert(alert) {
+            const container = document.getElementById('alert-feed');
+            if (container.children.length > 0 && container.children[0].innerText.includes("No active")) {
+                container.innerHTML = "";
+            }
+
+            const div = document.createElement('div');
+            div.className = 'alert-card';
+            div.innerHTML = `
+            <div class="alert-header">
+                <span>${new Date(alert.timestamp).toLocaleTimeString()}</span>
+                <span style="font-weight:bold; color:var(--accent-danger)">CRITICAL</span>
+            </div>
+            <div class="alert-msg">${alert.message}</div>
+            <div class="alert-src">SRC: ${alert.ip}</div>
+        `;
+            container.prepend(div);
+        }
+
+        function clearLogs() {
+            document.getElementById('log-body').innerHTML = "";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCDS | RED TEAM CONSOLE</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="scanlines"></div>
+    <div class="app-wrapper">
+        <!-- HEADER -->
+        <header class="top-bar">
+            <div class="brand-section">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-skull-crossbones"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>HACKER</h1>
+                    <span class="subtitle">OFFENSIVE CYBER OPERATIONS</span>
+                </div>
+            </div>
+
+            <div class="status-section">
+                <div class="target-indicator">
+                    <span class="label">TARGET LOCKED</span>
+                    <span class="value">LOCALHOST:3000</span>
+                </div>
+                <div class="connection-status">
+                    <div class="status-dot"></div>
+                    CONNECTED
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-grid">
+            <!-- ATTACK VECTORS -->
+            <section class="panel attack-panel">
+                <div class="panel-header">
+                    <i class="fa-solid fa-bolt"></i>
+                    <h2>ATTACK VECTORS</h2>
+                </div>
+
+                <div class="vectors-grid">
+                    <!-- 01. BRUTE FORCE -->
+                    <div class="card attack-card">
+                        <div class="card-header">
+                            <span class="id-badge">01</span>
+                            <h3>BRUTE FORCE</h3>
+                        </div>
+                        <p class="desc">Dictionary attack on admin credentials.</p>
+
+                        <div class="control-group">
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user"></i>
+                                <input type="text" id="bf-username" placeholder="USERNAME" value="admin">
+                            </div>
+                            <button onclick="startBruteForce()" class="btn-primary">
+                                <i class="fa-solid fa-play"></i> INITIATE
+                            </button>
+                        </div>
+
+                        <div class="terminal-output" id="bf-log">
+                            <div class="line"><span class="prompt">root@kali:~#</span> ready_</div>
+                        </div>
+                    </div>
+
+                    <!-- 02. DDoS FLOOD -->
+                    <div class="card attack-card">
+                        <div class="card-header">
+                            <span class="id-badge">02</span>
+                            <h3>DDoS FLOOD</h3>
+                        </div>
+                        <p class="desc">High-frequency HTTP request flood.</p>
+
+                        <div class="control-group">
+                            <button onclick="startDDoS()" class="btn-danger">
+                                <i class="fa-solid fa-burst"></i> LAUNCH FLOOD
+                            </button>
+                        </div>
+
+                        <div class="terminal-output" id="ddos-log">
+                            <div class="line"><span class="prompt">root@kali:~#</span> ready_</div>
+                        </div>
+                    </div>
+
+                    <!-- 03. SQL INJECTION -->
+                    <div class="card attack-card">
+                        <div class="card-header">
+                            <span class="id-badge">03</span>
+                            <h3>SQL INJECTION</h3>
+                        </div>
+                        <p class="desc">Bypass auth via malicious SQL payload.</p>
+
+                        <div class="control-group">
+                            <button onclick="launchSQLi()" class="btn-warning">
+                                <i class="fa-solid fa-code"></i> INJECT PAYLOAD
+                            </button>
+                        </div>
+
+                        <div class="terminal-output" id="sqli-log">
+                            <div class="line"><span class="prompt">root@kali:~#</span> ready_</div>
+                        </div>
+                    </div>
+
+                    <!-- 04. XSS ATTACK -->
+                    <div class="card attack-card">
+                        <div class="card-header">
+                            <span class="id-badge">04</span>
+                            <h3>XSS ATTACK</h3>
+                        </div>
+                        <p class="desc">Inject malicious script execution.</p>
+
+                        <div class="control-group">
+                            <button onclick="launchXSS()" class="btn-info">
+                                <i class="fa-solid fa-bug"></i> INJECT SCRIPT
+                            </button>
+                        </div>
+
+                        <div class="terminal-output" id="xss-log">
+                            <div class="line"><span class="prompt">root@kali:~#</span> ready_</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDC Bank | Secure Enterprise Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-color: #4f46e5;
+            --brand-hover: #4338ca;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--brand-color);
+            color: var(--brand-color);
+        }
+
+        .btn-outline:hover {
+            background: #eef2ff;
+        }
+
+        .btn-primary {
+            background: var(--brand-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-hover);
+        }
+
+        /* HERO */
+        .hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        p.lead {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .hero-btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .hero-btn-primary {
+            background: var(--brand-color);
+            color: white;
+        }
+
+        .hero-btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="brand"><i class="fa-solid fa-cube"></i> SDC Bank</div>
+        <div class="nav-links">
+            <a href="/login.html" class="btn btn-outline">Sign In</a>
+            <a href="/signup.html" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Banking for the <span style="color: var(--brand-color);">Future</span></h1>
+            <p class="lead">Secure, reliable, and predictive. Experience the next generation of financial protection
+                with SDC Bank.</p>
+            <div class="hero-btns">
+                <a href="/signup.html" class="hero-btn hero-btn-primary">Create Account</a>
+                <a href="/login.html" class="hero-btn hero-btn-secondary">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';
+    </script>
+</body>
+
+</html>
